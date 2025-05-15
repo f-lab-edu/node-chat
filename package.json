@@ -1,5 +1,6 @@
 {
-  "name": "temp-nest",
+  "type:": "module",
+  "name": "node-chat",
   "version": "0.0.1",
   "description": "",
   "author": "",
