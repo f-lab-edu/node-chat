@@ -9,8 +9,9 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "nest start --env-file ./config/.development.env",
+    "start:dev": "nest start --watch --env-file ./config/.development.env",
+    "start:redis": "node dist/redis/redis.main.js",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -22,12 +23,15 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
+    "@nestjs/microservices": "^11.1.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-ws": "^11.1.1",
     "@nestjs/websockets": "^11.1.1",
     "@types/ws": "^8.18.1",
+    "ioredis": "^5.6.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

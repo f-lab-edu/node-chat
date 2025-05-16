@@ -8,7 +8,7 @@ dist/
 # Other files and folders
 .settings/
 node_modules/
-.env
+config/*.env
 
 # Executables
 *.swf
