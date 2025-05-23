@@ -3,11 +3,12 @@ bin-debug/
 bin-release/
 [Oo]bj/
 [Bb]in/
+dist/
 
 # Other files and folders
 .settings/
 node_modules/
-.env
+config/*.env
 
 # Executables
 *.swf
