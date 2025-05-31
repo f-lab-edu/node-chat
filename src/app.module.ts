@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
 import { RedisService } from './redis/redis.service';
+import { UsersModule } from './users/users.module';
 // https://www.npmjs.com/package/@nestjs-modules/ioredis
 
 console.log('APP MODULE! ');
@@ -41,6 +42,7 @@ console.log('process.env.REDIS_URL: ', process.env.REDIS_URL);
     ),
     EventsModule,
     RedisModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],
