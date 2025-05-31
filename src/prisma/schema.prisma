@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CHAT_MSG {
+  MSG_ID              BigInt               @id @db.UnsignedBigInt
+  ROOM_UUID           String               @db.Char(36)
+  USR_UUID            String               @db.Char(36)
+  MSG_CONTENT_TYPE    String               @default("TEXT") @db.VarChar(4)
+  MSG_CONTENT         String               @default("") @db.VarChar(500)
+  CREATE_AT           DateTime             @default(now()) @db.DateTime(6)
+  DELETE_AT           DateTime?            @db.DateTime(6)
+  CHAT_ROOM           CHAT_ROOM            @relation(fields: [ROOM_UUID], references: [ROOM_UUID], onDelete: NoAction, onUpdate: NoAction, map: "FK_CHAT_ROOM_TO_CHAT_MSG")
+  USR                 USR                  @relation(fields: [USR_UUID], references: [USR_UUID], onDelete: NoAction, onUpdate: NoAction, map: "FK_USR_TO_CHAT_MSG")
+  CHAT_MSG_UNREAD_USR CHAT_MSG_UNREAD_USR?
+
+  @@index([ROOM_UUID], map: "FK_CHAT_ROOM_TO_CHAT_MSG")
+  @@index([USR_UUID], map: "FK_USR_TO_CHAT_MSG")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CHAT_MSG_UNREAD_USR {
+  MSG_ID    BigInt   @id @db.UnsignedBigInt
+  USR_UUID  String   @db.Char(36)
+  CREATE_AT DateTime @default(now()) @db.DateTime(6)
+  CHAT_MSG  CHAT_MSG @relation(fields: [MSG_ID], references: [MSG_ID], onDelete: NoAction, onUpdate: NoAction, map: "FK_CHAT_MSG_TO_CHAT_MSG_UNREAD_USR")
+  USR       USR      @relation(fields: [USR_UUID], references: [USR_UUID], onDelete: NoAction, onUpdate: NoAction, map: "FK_USR_TO_CHAT_MSG_UNREAD_USR")
+
+  @@index([USR_UUID], map: "FK_USR_TO_CHAT_MSG_UNREAD_USR")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CHAT_ROOM {
+  ROOM_UUID        String             @id @unique(map: "UQ_ROOM_UUID") @db.Char(36)
+  ROOM_NAME        String             @db.VarChar(50)
+  CREATE_AT        DateTime           @default(now()) @db.DateTime(6)
+  DELETE_AT        DateTime?          @db.DateTime(6)
+  CHAT_MSG         CHAT_MSG[]
+  CHAT_ROOM_MEMBER CHAT_ROOM_MEMBER[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CHAT_ROOM_MEMBER {
+  ID         BigInt    @id @db.UnsignedBigInt
+  ROOM_UUID  String    @db.Char(36)
+  USR_UUID   String    @db.Char(36)
+  USR_IN_AT  DateTime  @default(now()) @db.DateTime(6)
+  USR_OUT_AT DateTime? @db.DateTime(6)
+  CHAT_ROOM  CHAT_ROOM @relation(fields: [ROOM_UUID], references: [ROOM_UUID], onDelete: NoAction, onUpdate: NoAction, map: "FK_CHAT_ROOM_TO_CHAT_ROOM_MEMBER")
+  USR        USR       @relation(fields: [USR_UUID], references: [USR_UUID], onDelete: NoAction, onUpdate: NoAction, map: "FK_USR_TO_CHAT_ROOM_MEMBER")
+
+  @@index([ROOM_UUID], map: "FK_CHAT_ROOM_TO_CHAT_ROOM_MEMBER")
+  @@index([USR_UUID], map: "FK_USR_TO_CHAT_ROOM_MEMBER")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model USR {
+  USR_UUID            String                @id @unique(map: "UQ_USR_UUID") @db.Char(36)
+  USR_NAME            String                @db.VarChar(50)
+  USR_EMAIL           String                @unique(map: "UQ_USR_EMAIL") @db.VarChar(254)
+  CREATE_AT           DateTime              @default(now()) @db.DateTime(0)
+  CHAT_MSG            CHAT_MSG[]
+  CHAT_MSG_UNREAD_USR CHAT_MSG_UNREAD_USR[]
+  CHAT_ROOM_MEMBER    CHAT_ROOM_MEMBER[]
+}
