@@ -11,6 +11,8 @@ import { UsersModule } from './users/users.module';
 
 import dotenv from 'dotenv';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthsModule } from './auths/auths.module';
+import { ChatroomsModule } from './chatrooms/chatrooms.module';
 dotenv.config({ path: '../config/.development.env' });
 
 @Module({
@@ -41,6 +43,8 @@ dotenv.config({ path: '../config/.development.env' });
     EventsModule,
     RedisModule,
     UsersModule,
+    AuthsModule,
+    ChatroomsModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],
