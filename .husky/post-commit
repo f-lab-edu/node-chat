@@ -1,0 +1,12 @@
+#!/bin/sh
+# devlog 파일 경로 (필요하면 수정)
+DEVLOG_DIR="devlog"
+
+# devlog 디렉토리에 변경 사항 있는지 확인
+if git diff --quiet -- $DEVLOG_DIR; then
+  echo "No changes in devlog."
+else
+  echo "Detected changes in devlog, committing..."
+  git add $DEVLOG_DIR
+  git commit -m "docs(devlog): update daily devlog" --no-verify
+fi
