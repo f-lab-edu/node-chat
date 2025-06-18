@@ -6,14 +6,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
 import { RedisService } from './redis/redis.service';
+import { UsersModule } from './users/users.module';
 // https://www.npmjs.com/package/@nestjs-modules/ioredis
 
-console.log('APP MODULE! ');
-
 import dotenv from 'dotenv';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthsModule } from './auths/auths.module';
+import { ChatroomsModule } from './chatrooms/chatrooms.module';
 dotenv.config({ path: '../config/.development.env' });
-
-console.log('process.env.REDIS_URL: ', process.env.REDIS_URL);
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ console.log('process.env.REDIS_URL: ', process.env.REDIS_URL);
       envFilePath: ['./config/.development.env'],
       isGlobal: true,
     }),
+    PrismaModule,
     RedisModule.forRootAsync(
       {
         useFactory: () => ({
@@ -41,6 +42,9 @@ console.log('process.env.REDIS_URL: ', process.env.REDIS_URL);
     ),
     EventsModule,
     RedisModule,
+    UsersModule,
+    AuthsModule,
+    ChatroomsModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],
