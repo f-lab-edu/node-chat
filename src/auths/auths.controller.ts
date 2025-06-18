@@ -17,7 +17,6 @@ export class AuthsController {
 
   @Post('/login')
   async login(@Body() loginAuthDto: LoginAuthDto, @Res() res: Response) {
-    console.log('loginAuthDto: ', loginAuthDto);
     const userUuid = await this.authsService.login(loginAuthDto.email);
 
     res.cookie('Authorization', userUuid, {
