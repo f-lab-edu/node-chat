@@ -6,7 +6,19 @@ import path from 'path';
 // 커밋 메시지 파일 경로에서 메시지 추출
 const commitMsgFile = process.argv[2];
 const commitMsg = fs.readFileSync(commitMsgFile, 'utf8').trim();
-console.log('[devlog] commit message content:', commitMsg);
+
+// 1. 줄별로 나눔
+const lines = commitMsg.split('\n');
+
+// 2. 주석(#) 줄 제외
+const filtered = lines.filter(
+  (line) => !line.trim().startsWith('#') && line.trim() !== '',
+);
+
+// 3. 필터링된 내용 구성
+const cleanedMessage = filtered.join('\n');
+
+console.log('[devlog] commit message content:', cleanedMessage);
 
 // 변경된 파일 목록 추출
 const changedFiles = execSync('git diff --cached --name-only')
@@ -28,7 +40,7 @@ if (!fs.existsSync(devlogDir)) {
 const content = `
 📅 ${today}
 
-✅ 커밋: ${commitMsg}
+✅ 커밋: ${cleanedMessage}
 📝 변경 파일:
 ${changedFiles.map((f) => `- ${f}`).join('\n')}
 
