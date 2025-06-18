@@ -6,7 +6,11 @@ import { v7 as uuidv7 } from 'uuid';
 export class ChatroomsService {
   constructor(private prismaService: PrismaService) {}
 
-  async createChatroom(userUuid: string, memberUuids: string[]) {
+  async createChatroom(
+    userUuid: string,
+    memberUuids: string[],
+    roomName: string,
+  ) {
     const users = await this.prismaService.uSR.findMany({
       where: { USR_UUID: { in: memberUuids } },
     });
@@ -21,7 +25,8 @@ export class ChatroomsService {
     const newRoom = await this.prismaService.cHAT_ROOM.create({
       data: {
         ROOM_UUID: uuidv7(),
-        ROOM_NAME: new Date().toISOString(),
+        ROOM_NAME: roomName,
+        CREATE_AT: new Date().toISOString(),
       },
     });
     console.log('newRoom: ', newRoom);

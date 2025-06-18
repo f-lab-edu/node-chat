@@ -33,9 +33,12 @@ export class ChatroomsController {
     @Res() res: Response,
   ) {
     const userUuid = req.user?.uuid as string;
-    const memberUuids = createChatroomDto.userUuids;
 
-    await this.chatroomsService.createChatroom(userUuid, memberUuids);
+    await this.chatroomsService.createChatroom(
+      userUuid,
+      createChatroomDto.memberUuids,
+      createChatroomDto.roomName,
+    );
 
     return res.status(200).json({ result: 'success' });
   }
