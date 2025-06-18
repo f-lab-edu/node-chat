@@ -4,4 +4,4 @@
 echo "[디버그] \$1 값은: $1"
 
 # generate-devlog 실행
-node dist/scripts/generate-devlog "$1"
+node scripts/generate-devlog "$1"

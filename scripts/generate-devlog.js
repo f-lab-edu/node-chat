@@ -2,6 +2,12 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// 현재 파일 절대 경로
+const __filename = fileURLToPath(import.meta.url);
+// 현재 파일이 속한 디렉토리 경로 (CommonJS의 __dirname과 동일)
+const __dirname = path.dirname(__filename);
 
 // 커밋 메시지 파일 경로에서 메시지 추출
 const commitMsgFile = process.argv[2];
@@ -27,7 +33,9 @@ const changedFiles = execSync('git diff --cached --name-only')
   .filter(Boolean);
 
 // 날짜
-const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+const now = new Date();
+const today = now.toISOString().slice(0, 10); // yyyy-mm-dd
+const time = now.toLocaleTimeString('ko-KR', { hour12: false });
 const devlogDir = path.resolve(__dirname, '../devlog');
 const devlogFile = path.join(devlogDir, `${today}.md`);
 
@@ -38,7 +46,8 @@ if (!fs.existsSync(devlogDir)) {
 
 // 템플릿 작성
 const content = `
-📅 ${today}
+---
+🕒 ${time}
 
 ✅ 커밋: ${cleanedMessage}
 📝 변경 파일:
