@@ -29,7 +29,6 @@ export class ChatroomsService {
         CREATE_AT: new Date().toISOString(),
       },
     });
-    console.log('newRoom: ', newRoom);
 
     const chatroomMembers: string[] = [...memberUuids, userUuid];
     console.log('chatroomMembers.length', chatroomMembers.length);
