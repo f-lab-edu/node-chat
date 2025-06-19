@@ -13,16 +13,8 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors({
-    origin: (origin, callback) => {
-      const localhostRegex = /^http:\/\/localhost(:\d+)?$/;
-
-      if (!origin || localhostRegex.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credential: true,
+    origin: ['http://127.0.0.1:5501'],
+    credentials: true,
   });
 
   app.useGlobalPipes(

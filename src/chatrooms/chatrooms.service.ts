@@ -46,7 +46,6 @@ export class ChatroomsService {
       select: { CHAT_ROOM: { select: { ROOM_UUID: true, ROOM_NAME: true } } },
       where: { USR_UUID: userUuid, USR_OUT_AT: null },
     });
-    console.log('chatrooms: ', chatrooms);
 
     const listOfChatRooms = chatrooms.map((room) => room.CHAT_ROOM);
 

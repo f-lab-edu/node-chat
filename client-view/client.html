@@ -30,11 +30,38 @@
         width: 400px;
         position: relative;
       }
-      .chatroom {
-        border: 1px solid #ccc;
-        padding: 0.5rem;
-        margin-top: 0.5rem;
-        border-radius: 0.25rem;
+      .chatroom-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #create-chat-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        font-size: 1.8rem;
+        background: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .chatroom-item {
+        display: flex;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        align-items: center;
+        cursor: pointer;
+      }
+      .chatroom-info {
+        flex-grow: 1;
+        margin-left: 12px;
       }
     </style>
   </head>
@@ -50,8 +77,10 @@
     <!-- 2. 채팅 목록 페이지 -->
     <div id="chat-list-page" class="hidden">
       <h2>채팅 목록</h2>
-      <button onclick="openModal()">채팅방 +</button>
-      <div id="chatrooms"></div>
+      <button id="create-chat-btn" onclick="openModal()" title="채팅방 만들기">
+        <img src="./images/chat-bubble.png" width="32" height="32" />
+      </button>
+      <ul id="chatroom-list" class="chatroom-list"></ul>
     </div>
 
     <!-- 3. 채팅방 생성 모달 -->
@@ -73,12 +102,6 @@
     </div>
 
     <script>
-      const dummyFriends = [
-        { name: '김철수', email: 'kim@example.com' },
-        { name: '이영희', email: 'lee@example.com' },
-        { name: '박민수', email: 'park@example.com' },
-      ];
-
       document
         .getElementById('create-btn')
         .addEventListener('click', createChatroom);
@@ -95,11 +118,13 @@
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ email: id }),
           });
 
           if (!res.ok) {
-            throw new Error('서버 오류');
+            alert('서버 오류');
+            return;
           }
 
           document.getElementById('login-page').classList.add('hidden');
@@ -111,17 +136,61 @@
       }
 
       async function loadChatrooms() {
-        const chatrooms = document.getElementById('chatrooms');
-        chatrooms.innerHTML = '<div class="chatroom">예시 채팅방 1</div>';
+        const res = await fetch('http://localhost:8000/chatrooms/list', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          alert('채팅방 목록을 불러오는 데 실패했습니다.');
+          return;
+        }
+
+        const chatrooms = (await res.json()).result;
+        const chatroomList = document.getElementById('chatroom-list');
+        console.log('chatroomList: ', chatroomList);
+        chatroomList.innerHTML = '';
+
+        chatrooms.forEach((room) => {
+          const li = document.createElement('li');
+          li.className = 'chatroom-item';
+          li.innerHTML = `
+            <div class="chatroom-info">
+              <div class="chatroom-name">${room.ROOM_NAME}</div>
+            </div>
+          `;
+          li.dataset.roomId = room.ROOM_UUID;
+          chatroomList.appendChild(li);
+        });
       }
 
-      function openModal() {
+      async function openModal() {
+        const res = await fetch('http://localhost:8000/chatrooms/list', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          alert('채팅방 목록을 불러오는 데 실패했습니다.');
+          return;
+        }
+
+        const chatCandidates = (await res.json()).result;
+
         document.getElementById('chat-modal').classList.remove('hidden');
         const list = document.getElementById('friend-list');
-        list.innerHTML = dummyFriends
+        list.innerHTML = chatCandidates
           .map(
-            (f, i) => `
-          <label><input type="checkbox" value="${f.email}" /> ${f.name} (${f.email})</label><br />
+            (candidate) => `
+            <label>
+              <input type="checkbox" value="${candidate.USR_EMAIL}" data-name="${candidate.USR_UUID}" /> ${candidate.USR_NAME} (${candidate.USR_EMAI})
+            </label><br />
         `,
           )
           .join('');
@@ -138,7 +207,7 @@
         }
       }
 
-      function createChatroom() {
+      async function createChatroom() {
         const name = document.getElementById('chatroom-name').value;
         const selected = Array.from(
           document.querySelectorAll('#friend-list input:checked'),
@@ -147,7 +216,7 @@
           alert('채팅방 이름과 친구를 선택해주세요.');
           return;
         }
-        const chatrooms = document.getElementById('chatrooms');
+        const chatrooms = document.getElementById('chatroom-list');
         const div = document.createElement('div');
         div.className = 'chatroom';
         div.textContent = `${name} (${selected.length}명)`;
