@@ -66,15 +66,27 @@
     </style>
   </head>
   <body>
-    <!-- 1. 로그인 페이지 -->
-    <div id="login-page">
-      <h2>로그인</h2>
-      <input type="text" id="login-id" placeholder="ID" /><br /><br />
-      <input type="password" id="login-pw" placeholder="Password" /><br /><br />
-      <button onclick="login()">로그인</button>
+    <!-- 1. 회원가입 페이지 -->
+    <div id="signup-page">
+      <h2>회원가입</h2>
+      <input type="text" id="signup-id" placeholder="Email" /><br /><br />
+      <input
+        type="text"
+        id="signup-username"
+        placeholder="Username"
+      /><br /><br />
+      <button id="signup-btn" onclick="signup()">회원가입</button>
     </div>
 
-    <!-- 2. 채팅 목록 페이지 -->
+    <!-- 2. 로그인 페이지 -->
+    <div id="login-page" class="hidden">
+      <h2>로그인</h2>
+      <input type="text" id="login-id" placeholder="Email" /><br /><br />
+      <input type="password" id="login-pw" placeholder="Password" /><br /><br />
+      <button id="login-btn" onclick="login()">로그인</button>
+    </div>
+
+    <!-- 3. 채팅 목록 페이지 -->
     <div id="chat-list-page" class="hidden">
       <h2>채팅 목록</h2>
       <button id="create-chat-btn" onclick="openModal()" title="채팅방 만들기">
@@ -83,7 +95,7 @@
       <ul id="chatroom-list" class="chatroom-list"></ul>
     </div>
 
-    <!-- 3. 채팅방 생성 모달 -->
+    <!-- 4. 채팅방 생성 모달 -->
     <div
       id="chat-modal"
       class="modal hidden"
@@ -108,6 +120,32 @@
       document
         .getElementById('close-btn')
         .addEventListener('click', closeModal);
+
+      async function signup() {
+        const email = document.getElementById('signup-id').value;
+        const username = document.getElementById('signup-username').value;
+        if (email && username) {
+          const res = await fetch('http://localhost:8000/auths/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email: email, name: username }),
+          });
+
+          if (!res.ok) {
+            alert('서버 오류');
+            return;
+          }
+
+          document.getElementById('signup-page').classList.add('hidden');
+          document.getElementById('login-page').classList.remove('hidden');
+          alert('회원가입에 성공하셨습니다.');
+        } else {
+          alert('email/username을 입력해주세요.');
+        }
+      }
 
       async function login() {
         const id = document.getElementById('login-id').value;
