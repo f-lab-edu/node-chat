@@ -75,7 +75,8 @@
         id="signup-username"
         placeholder="Username"
       /><br /><br />
-      <button id="signup-btn" onclick="signup()">회원가입</button>
+      <button id="signup-btn" onclick="signup()">회원가입</button><br /><br />
+      <button onclick="goToLogin()">이미 계정이 있으신가요?</button>
     </div>
 
     <!-- 2. 로그인 페이지 -->
@@ -145,6 +146,11 @@
         } else {
           alert('email/username을 입력해주세요.');
         }
+      }
+
+      async function goToLogin() {
+        document.getElementById('signup-page').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
       }
 
       async function login() {
