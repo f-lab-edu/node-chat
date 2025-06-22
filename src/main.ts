@@ -13,7 +13,18 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://127.0.0.1:5501'],
+    origin: (origin, callback) => {
+      if (!origin || origin === 'null') {
+        // origin이 없거나 file:// 같은 경우
+        return callback(null, true);
+      }
+      const allowedOrigins = ['http://127.0.0.1:5501'];
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
