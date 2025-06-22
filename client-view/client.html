@@ -97,11 +97,7 @@
     </div>
 
     <!-- 4. 채팅방 생성 모달 -->
-    <div
-      id="chat-modal"
-      class="modal hidden"
-      onclick="handleOutsideClick(event)"
-    >
+    <div id="chat-modal" class="modal hidden">
       <div class="modal-content" onclick="event.stopPropagation()">
         <h3>채팅방 생성</h3>
         <label>채팅방 이름:</label><br />
@@ -232,7 +228,7 @@
           .map(
             (candidate) => `
             <label>
-              <input type="checkbox" value="${candidate.USR_EMAIL}" data-name="${candidate.USR_UUID}" /> ${candidate.USR_NAME} (${candidate.USR_EMAI})
+              <input type="checkbox" value="${candidate.USR_EMAIL}" data-name="${candidate.USR_UUID}" /> ${candidate.USR_NAME} (${candidate.USR_EMAIL})
             </label><br />
         `,
           )
@@ -244,27 +240,33 @@
         modal.classList.add('hidden');
       }
 
-      function handleOutsideClick(event) {
-        if (event.target.id === 'chat-modal') {
-          closeModal();
-        }
-      }
-
       async function createChatroom() {
-        const name = document.getElementById('chatroom-name').value;
-        const selected = Array.from(
+        const roomName = document.getElementById('chatroom-name').value;
+        const selectedMembers = await Array.from(
           document.querySelectorAll('#friend-list input:checked'),
-        ).map((el) => el.value);
-        if (!name || selected.length === 0) {
+        ).map((el) => el.dataset.name);
+
+        if (!roomName || selectedMembers.length === 0) {
           alert('채팅방 이름과 친구를 선택해주세요.');
           return;
         }
-        const chatrooms = document.getElementById('chatroom-list');
-        const div = document.createElement('div');
-        div.className = 'chatroom';
-        div.textContent = `${name} (${selected.length}명)`;
-        chatrooms.appendChild(div);
+
+        const res = await fetch('http://localhost:8000/chatrooms/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            memberUuids: selectedMembers,
+            roomName: roomName,
+          }),
+        });
+
+        alert('채팅방 생성에 성공하셨습니다.');
         closeModal();
+        document.getElementById('chat-list-page').classList.remove('hidden');
+        loadChatrooms();
       }
     </script>
   </body>
