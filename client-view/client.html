@@ -195,7 +195,6 @@
 
         const chatrooms = (await res.json()).result;
         const chatroomList = document.getElementById('chatroom-list');
-        console.log('chatroomList: ', chatroomList);
         chatroomList.innerHTML = '';
 
         chatrooms.forEach((room) => {
@@ -212,7 +211,7 @@
       }
 
       async function openModal() {
-        const res = await fetch('http://localhost:8000/chatrooms/list', {
+        const res = await fetch('http://localhost:8000/users/chat-candidates', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

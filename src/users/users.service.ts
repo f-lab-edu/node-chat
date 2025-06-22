@@ -16,7 +16,6 @@ export class UsersService {
       select: { USR_EMAIL: true, USR_NAME: true, USR_UUID: true },
       where: { NOT: { USR_UUID: userUuid } },
     });
-    console.log('list: ', list);
 
     return list;
   }
