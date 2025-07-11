@@ -169,7 +169,8 @@
 
           document.getElementById('login-page').classList.add('hidden');
           document.getElementById('chat-list-page').classList.remove('hidden');
-          loadChatrooms();
+          const chatrooms = await loadChatrooms();
+          subscribeToChatrooms(chatrooms);
         } else {
           alert('ID/PW를 입력해주세요.');
         }
@@ -204,6 +205,8 @@
           li.dataset.roomId = room.ROOM_UUID;
           chatroomList.appendChild(li);
         });
+
+        return chatrooms;
       }
 
       async function openModal() {
@@ -267,6 +270,58 @@
         closeModal();
         document.getElementById('chat-list-page').classList.remove('hidden');
         loadChatrooms();
+      }
+
+      async function subscribeToChatrooms(chatrooms) {
+        const subscribedRooms = chatrooms.map((room) => room.ROOM_UUID);
+        const socket = new WebSocket('ws://localhost:8000'); // 주소는 NestJS 웹소켓 서버 주소
+
+        socket.addEventListener('open', () => {
+          console.log('WebSocket connection opened.');
+        });
+
+        socket.addEventListener('message', (event) => {
+          let data;
+          console.log('event.data: ', event.data);
+          try {
+            data =
+              typeof event.data === 'string'
+                ? JSON.parse(event.data)
+                : event.data;
+          } catch (e) {
+            console.error('Invalid JSON:', event.data);
+            return;
+          }
+
+          if (data.event === 'ready') {
+            console.log('data.event: ', data.event);
+            console.log('Received ready event. Sending join-rooms...');
+            socket.send(
+              JSON.stringify({
+                event: 'join-rooms',
+                data: subscribedRooms,
+              }),
+            );
+          } else {
+            console.log('Failed to receive ready event');
+          }
+        });
+
+        // document.getElementById('send').addEventListener('click', () => {
+        //   const room = document.getElementById('room').value;
+        //   const message = document.getElementById('message').value;
+        //   const email = document.getElementById('email').value;
+
+        //   socket.send(
+        //     JSON.stringify({
+        //       event: 'send-message',
+        //       data: {
+        //         room,
+        //         message: JSON.stringify({ sender: email, message }),
+        //       },
+        //     }),
+        //   );
+        // });
       }
     </script>
   </body>
