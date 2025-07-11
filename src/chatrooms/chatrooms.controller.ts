@@ -26,19 +26,22 @@ export class ChatroomsController {
     return res.status(200).json({ result: list });
   }
 
-  // @Post('/add')
-  // async createChatRoom(
-  //   @Body() createChatroomDto: CreateChatroomDto,
-  //   @Req() req: CustomRequest,
-  //   @Res() res: Response,
-  // ) {
-  //   const userUuid = req.user?.uuid as string;
-  //   const list = await this.chatroomsService.createChatroom(
-  //     createChatroomDto.userUuids,
-  //   );
+  @Post('/add')
+  async createChatRoom(
+    @Body() createChatroomDto: CreateChatroomDto,
+    @Req() req: CustomRequest,
+    @Res() res: Response,
+  ) {
+    const userUuid = req.user?.uuid as string;
 
-  //   return res.status(200).json({ result: list });
-  // }
+    await this.chatroomsService.createChatroom(
+      userUuid,
+      createChatroomDto.memberUuids,
+      createChatroomDto.roomName,
+    );
+
+    return res.status(200).json({ result: 'success' });
+  }
 
   @Patch('/:roomUuid/leave')
   async leaveChatRoom(

@@ -47,7 +47,7 @@ model CHAT_ROOM {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CHAT_ROOM_MEMBER {
-  ID         BigInt    @id @db.UnsignedBigInt
+  ID         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   ROOM_UUID  String    @db.Char(36)
   USR_UUID   String    @db.Char(36)
   USR_IN_AT  DateTime  @default(now()) @db.DateTime(6)

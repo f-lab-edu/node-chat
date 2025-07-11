@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>채팅 서비스</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        width: 400px;
+        position: relative;
+      }
+      .chatroom-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #create-chat-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        font-size: 1.8rem;
+        background: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .chatroom-item {
+        display: flex;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        align-items: center;
+        cursor: pointer;
+      }
+      .chatroom-info {
+        flex-grow: 1;
+        margin-left: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. 회원가입 페이지 -->
+    <div id="signup-page">
+      <h2>회원가입</h2>
+      <input type="text" id="signup-id" placeholder="Email" /><br /><br />
+      <input
+        type="text"
+        id="signup-username"
+        placeholder="Username"
+      /><br /><br />
+      <button id="signup-btn" onclick="signup()">회원가입</button><br /><br />
+      <button onclick="goToLogin()">이미 계정이 있으신가요?</button>
+    </div>
+
+    <!-- 2. 로그인 페이지 -->
+    <div id="login-page" class="hidden">
+      <h2>로그인</h2>
+      <input type="text" id="login-id" placeholder="Email" /><br /><br />
+      <input type="password" id="login-pw" placeholder="Password" /><br /><br />
+      <button id="login-btn" onclick="login()">로그인</button>
+    </div>
+
+    <!-- 3. 채팅 목록 페이지 -->
+    <div id="chat-list-page" class="hidden">
+      <h2>채팅 목록</h2>
+      <button id="create-chat-btn" onclick="openModal()" title="채팅방 만들기">
+        <img src="./images/chat-bubble.png" width="32" height="32" />
+      </button>
+      <ul id="chatroom-list" class="chatroom-list"></ul>
+    </div>
+
+    <!-- 4. 채팅방 생성 모달 -->
+    <div id="chat-modal" class="modal hidden">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <h3>채팅방 생성</h3>
+        <label>채팅방 이름:</label><br />
+        <input type="text" id="chatroom-name" /><br /><br />
+        <label>친구 목록:</label><br />
+        <div id="friend-list"></div>
+        <br />
+        <button id="create-btn">생성</button>
+        <button id="close-btn">닫기</button>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById('create-btn')
+        .addEventListener('click', createChatroom);
+      document
+        .getElementById('close-btn')
+        .addEventListener('click', closeModal);
+
+      async function signup() {
+        const email = document.getElementById('signup-id').value;
+        const username = document.getElementById('signup-username').value;
+        if (email && username) {
+          const res = await fetch('http://localhost:8000/auths/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email: email, name: username }),
+          });
+
+          if (!res.ok) {
+            alert('서버 오류');
+            return;
+          }
+
+          document.getElementById('signup-page').classList.add('hidden');
+          document.getElementById('login-page').classList.remove('hidden');
+          alert('회원가입에 성공하셨습니다.');
+        } else {
+          alert('email/username을 입력해주세요.');
+        }
+      }
+
+      async function goToLogin() {
+        document.getElementById('signup-page').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+      }
+
+      async function login() {
+        const id = document.getElementById('login-id').value;
+        const pw = document.getElementById('login-pw').value;
+        if (id && pw) {
+          const res = await fetch('http://localhost:8000/auths/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email: id }),
+          });
+
+          if (!res.ok) {
+            alert('서버 오류');
+            return;
+          }
+
+          document.getElementById('login-page').classList.add('hidden');
+          document.getElementById('chat-list-page').classList.remove('hidden');
+          loadChatrooms();
+        } else {
+          alert('ID/PW를 입력해주세요.');
+        }
+      }
+
+      async function loadChatrooms() {
+        const res = await fetch('http://localhost:8000/chatrooms/list', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          alert('채팅방 목록을 불러오는 데 실패했습니다.');
+          return;
+        }
+
+        const chatrooms = (await res.json()).result;
+        const chatroomList = document.getElementById('chatroom-list');
+        chatroomList.innerHTML = '';
+
+        chatrooms.forEach((room) => {
+          const li = document.createElement('li');
+          li.className = 'chatroom-item';
+          li.innerHTML = `
+            <div class="chatroom-info">
+              <div class="chatroom-name">${room.ROOM_NAME}</div>
+            </div>
+          `;
+          li.dataset.roomId = room.ROOM_UUID;
+          chatroomList.appendChild(li);
+        });
+      }
+
+      async function openModal() {
+        const res = await fetch('http://localhost:8000/users/chat-candidates', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          alert('채팅방 목록을 불러오는 데 실패했습니다.');
+          return;
+        }
+
+        const chatCandidates = (await res.json()).result;
+
+        document.getElementById('chat-modal').classList.remove('hidden');
+        const list = document.getElementById('friend-list');
+        list.innerHTML = chatCandidates
+          .map(
+            (candidate) => `
+            <label>
+              <input type="checkbox" value="${candidate.USR_EMAIL}" data-name="${candidate.USR_UUID}" /> ${candidate.USR_NAME} (${candidate.USR_EMAIL})
+            </label><br />
+        `,
+          )
+          .join('');
+      }
+
+      function closeModal() {
+        const modal = document.getElementById('chat-modal');
+        modal.classList.add('hidden');
+      }
+
+      async function createChatroom() {
+        const roomName = document.getElementById('chatroom-name').value;
+        const selectedMembers = await Array.from(
+          document.querySelectorAll('#friend-list input:checked'),
+        ).map((el) => el.dataset.name);
+
+        if (!roomName || selectedMembers.length === 0) {
+          alert('채팅방 이름과 친구를 선택해주세요.');
+          return;
+        }
+
+        const res = await fetch('http://localhost:8000/chatrooms/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            memberUuids: selectedMembers,
+            roomName: roomName,
+          }),
+        });
+
+        alert('채팅방 생성에 성공하셨습니다.');
+        closeModal();
+        document.getElementById('chat-list-page').classList.remove('hidden');
+        loadChatrooms();
+      }
+    </script>
+  </body>
+</html>

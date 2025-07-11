@@ -2,11 +2,12 @@
 # devlog 파일 경로 (필요하면 수정)
 DEVLOG_DIR="devlog"
 
-# devlog 디렉토리에 변경 사항 있는지 확인
-if git diff --quiet -- $DEVLOG_DIR; then
-  echo "No changes in devlog."
-else
+# devlog 디렉토리에 staged 또는 unstaged 변경이 있는지 확인
+# 새 파일까지 포함해 정확히 감지
+if [ -n "$(git status --porcelain $DEVLOG_DIR)" ]; then
   echo "Detected changes in devlog, committing..."
   git add $DEVLOG_DIR
   git commit -m "docs(devlog): update daily devlog" --no-verify
+else
+  echo "No changes in devlog."
 fi

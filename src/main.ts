@@ -14,15 +14,18 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: (origin, callback) => {
-      const localhostRegex = /^http:\/\/localhost(:\d+)?$/;
-
-      if (!origin || localhostRegex.test(origin)) {
-        callback(null, true);
+      if (!origin || origin === 'null') {
+        // origin이 없거나 file:// 같은 경우
+        return callback(null, true);
+      }
+      const allowedOrigins = ['http://127.0.0.1:5501'];
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        return callback(new Error('Not allowed by CORS'));
       }
     },
-    credential: true,
+    credentials: true,
   });
 
   app.useGlobalPipes(
