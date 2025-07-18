@@ -75,6 +75,7 @@
         id="signup-username"
         placeholder="Username"
       /><br /><br />
+      <input type="password" id="login-pw" placeholder="Password" /><br /><br />
       <button id="signup-btn" onclick="signup()">회원가입</button><br /><br />
       <button onclick="goToLogin()">이미 계정이 있으신가요?</button>
     </div>
@@ -121,14 +122,19 @@
       async function signup() {
         const email = document.getElementById('signup-id').value;
         const username = document.getElementById('signup-username').value;
-        if (email && username) {
-          const res = await fetch('http://localhost:8000/auths/signup', {
+        const password = document.getElementById('signup-pw').value;
+        if (email && username && password) {
+          const res = await fetch('http://localhost:8080/api/auth/signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ email: email, name: username }),
+            body: JSON.stringify({
+              email: email,
+              name: username,
+              password: password,
+            }),
           });
 
           if (!res.ok) {
@@ -140,7 +146,7 @@
           document.getElementById('login-page').classList.remove('hidden');
           alert('회원가입에 성공하셨습니다.');
         } else {
-          alert('email/username을 입력해주세요.');
+          alert('email/username/password을 입력해주세요.');
         }
       }
 
@@ -153,13 +159,13 @@
         const id = document.getElementById('login-id').value;
         const pw = document.getElementById('login-pw').value;
         if (id && pw) {
-          const res = await fetch('http://localhost:8000/auths/login', {
+          const res = await fetch('http://localhost:8080/api/auth/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ email: id }),
+            body: JSON.stringify({ email: id, password: pw }),
           });
 
           if (!res.ok) {
