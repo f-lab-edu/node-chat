@@ -40,8 +40,16 @@ dotenv.config({ path: '../config/.development.env' });
       },
       'SUBSCRIBER',
     ),
+    RedisModule.forRootAsync(
+      {
+        useFactory: () => ({
+          type: 'single',
+          url: process.env.REDIS_URL,
+        }),
+      },
+      'SESSION',
+    ),
     EventsModule,
-    RedisModule,
     UsersModule,
     AuthsModule,
     ChatroomsModule,

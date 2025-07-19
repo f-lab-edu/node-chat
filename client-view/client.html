@@ -75,7 +75,11 @@
         id="signup-username"
         placeholder="Username"
       /><br /><br />
-      <input type="password" id="login-pw" placeholder="Password" /><br /><br />
+      <input
+        type="password"
+        id="signup-pw"
+        placeholder="Password"
+      /><br /><br />
       <button id="signup-btn" onclick="signup()">회원가입</button><br /><br />
       <button onclick="goToLogin()">이미 계정이 있으신가요?</button>
     </div>
@@ -158,6 +162,7 @@
       async function login() {
         const id = document.getElementById('login-id').value;
         const pw = document.getElementById('login-pw').value;
+        console.log('pw: ', pw);
         if (id && pw) {
           const res = await fetch('http://localhost:8080/api/auth/login', {
             method: 'POST',
