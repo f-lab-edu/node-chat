@@ -28,7 +28,7 @@ export class EventsGateway /* 웹소켓 기능을 구현할 클래스*/ {
   }
 
   handleDisconnect(client: any) {
-    this.roomMap.forEach((client) => client.delete(client));
+    this.roomMap.forEach((clients) => clients.delete(client));
     console.log('WebSocket disconnected:', client?.id);
   }
 

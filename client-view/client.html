@@ -115,6 +115,24 @@
       </div>
     </div>
 
+    <!-- 5. 채팅방 페이지 -->
+    <div id="chat-room-page" class="hidden">
+      <h2 id="chat-room-title">채팅방</h2>
+      <div
+        id="chat-messages"
+        style="
+          border: 1px solid #ccc;
+          height: 300px;
+          overflow-y: auto;
+          padding: 1rem;
+          margin-bottom: 1rem;
+        "
+      ></div>
+      <input type="text" id="chat-input" placeholder="메시지를 입력하세요" />
+      <button id="send-btn">전송</button>
+      <button onclick="goToChatList()">목록으로</button>
+    </div>
+
     <script>
       document
         .getElementById('create-btn')
@@ -214,6 +232,10 @@
             </div>
           `;
           li.dataset.roomId = room.ROOM_UUID;
+          li.addEventListener('click', () => {
+            openChatRoom(room.ROOM_UUID, room.ROOM_NAME);
+          });
+
           chatroomList.appendChild(li);
         });
 
@@ -313,26 +335,51 @@
                 data: subscribedRooms,
               }),
             );
+          } else if (data.event === 'receive-message') {
           } else {
-            console.log('Failed to receive ready event');
+            console.log('Unknown event');
           }
         });
 
-        // document.getElementById('send').addEventListener('click', () => {
-        //   const room = document.getElementById('room').value;
-        //   const message = document.getElementById('message').value;
-        //   const email = document.getElementById('email').value;
+        document.getElementById('send-btn').addEventListener('click', () => {
+          const message = document.getElementById('chat-input').value;
+          const roomId =
+            document.getElementById('chat-room-title').dataset.roomId;
+          console.log('roomId: ', roomId);
 
-        //   socket.send(
-        //     JSON.stringify({
-        //       event: 'send-message',
-        //       data: {
-        //         room,
-        //         message: JSON.stringify({ sender: email, message }),
-        //       },
-        //     }),
-        //   );
-        // });
+          socket.send(
+            JSON.stringify({
+              event: 'send-message',
+              data: {
+                room: roomId,
+                message: JSON.stringify({ roomId, message }),
+              },
+            }),
+          );
+        });
+      }
+
+      function openChatRoom(roomId, roomName) {
+        document.getElementById('chat-list-page').classList.add('hidden');
+        document.getElementById('chat-room-page').classList.remove('hidden');
+        const titleEl = document.getElementById('chat-room-title');
+        titleEl.textContent = roomName;
+        titleEl.dataset.roomId = roomId;
+
+        // 메시지 영역 초기화
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = '';
+
+        // WebSocket이 이미 열려있으면 해당 방으로 메시지 구독 요청 보내기
+        // 여기서는 간단하게 예시만 보여줌 (실제는 소켓을 전역변수로 관리하는 것이 좋음)
+        if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+          window.socket.send(
+            JSON.stringify({
+              event: 'join-room',
+              data: roomId,
+            }),
+          );
+        }
       }
     </script>
   </body>
