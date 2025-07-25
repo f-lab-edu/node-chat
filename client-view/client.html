@@ -335,9 +335,18 @@
                 data: subscribedRooms,
               }),
             );
-          } else if (data.event === 'receive-message') {
           } else {
-            console.log('Unknown event');
+            console.log('Unknown event: ', data);
+            const chatMessages = document.getElementById('chat-messages');
+
+            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+            const msgEl = document.createElement('div');
+            msgEl.textContent = parsed.message;
+            msgEl.style.marginBottom = '0.5rem';
+
+            chatMessages.appendChild(msgEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // 최신 메시지로 스크롤
           }
         });
 
