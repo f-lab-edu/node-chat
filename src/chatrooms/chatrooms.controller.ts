@@ -22,6 +22,7 @@ export class ChatroomsController {
   async getJoinedChatRooms(@Req() req: CustomRequest, @Res() res: Response) {
     const userUuid = req.user?.uuid as string;
     const list = await this.chatroomsService.getJoinedChatRooms(userUuid);
+    console.log('list: ', list);
 
     return res.status(200).json({ result: list });
   }
